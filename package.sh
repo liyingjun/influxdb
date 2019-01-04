@@ -67,7 +67,7 @@ if [ -z "$FPM" ]; then
     FPM=`which fpm`
 fi
 
-GO_VERSION="go1.4.3"
+GO_VERSION="go1.6.2"
 GOPATH_INSTALL=
 BINS=(
     influxd
@@ -251,9 +251,9 @@ do_build() {
         git reset --hard
     fi
 
-    go get -u -f -d ./...
+    gdm restore
     if [ $? -ne 0 ]; then
-        echo "WARNING: failed to 'go get' packages."
+        echo "WARNING: failed to 'gdm restore' packages."
     fi
 
     git checkout $TARGET_BRANCH # go get switches to master, so ensure we're back.
@@ -274,7 +274,7 @@ do_build() {
     fi
 
     date=`date -u --iso-8601=seconds`
-    go install $RACE -a -ldflags="-X main.version=$version -X main.branch=$branch -X main.commit=$commit -X main.buildTime=$date" ./...
+    go install $RACE -a -ldflags "-X main.version $version -X main.branch $branch -X main.commit $commit -X main.buildTime $date" ./...
     if [ $? -ne 0 ]; then
         echo "Build failed, unable to create package -- aborting"
         cleanup_exit 1
@@ -391,7 +391,7 @@ check_gvm
 check_gopath
 if [ -z "$NIGHTLY_BUILD" -a -z "$PACKAGES_ONLY" ]; then
        check_clean_tree
-       update_tree
+       # update_tree
        check_tag_exists `full_version $VERSION $RC`
 fi
 
